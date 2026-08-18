@@ -17,13 +17,15 @@ class EditProfile extends BaseEditProfile
                     ->image()
                     ->avatar()
                     ->imageEditor()
+                    ->imageEditorAspectRatios([
+                        null,
+                        '4:3',
+                        '1:1',
+                    ])
                     ->disk('public')
                     ->directory('avatars')
                     ->visibility('public')
-                    ->maxSize(2048)
-                    ->extraInputAttributes([
-                        'capture' => 'environment',
-                    ]),
+                    ->maxSize(5120),
 
                 $this->getNameFormComponent(),
                 $this->getEmailFormComponent(),
