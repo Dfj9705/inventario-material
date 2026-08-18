@@ -63,6 +63,9 @@ class AdminPanelProvider extends PanelProvider
             ->brandLogo(asset('images/logo.png'))
             ->favicon(asset('images/logo.png'))
             ->brandLogoHeight('4rem')
+            ->plugin(
+                \TomatoPHP\FilamentPWA\FilamentPWAPlugin::make()
+            )
             ->authMiddleware([
                 Authenticate::class,
             ]);
