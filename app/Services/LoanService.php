@@ -212,15 +212,6 @@ class LoanService
                 ]);
             }
 
-            if (
-                $stock->material->type
-                !== MaterialType::NON_CONSUMABLE
-            ) {
-                throw ValidationException::withMessages([
-                    "items.{$item['index']}.material_id" =>
-                        'Solamente pueden prestarse materiales no consumibles.',
-                ]);
-            }
 
             if (
                 $item['quantity']
