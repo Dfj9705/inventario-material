@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class PermissionResource extends Resource
 {
@@ -68,6 +69,26 @@ class PermissionResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('permission.view');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('permission.create');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()->can('permission.update');
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()->can('permission.delete');
     }
 
     public static function getPages(): array

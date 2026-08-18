@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Hash;
 
 class UserResource extends Resource
@@ -113,6 +114,26 @@ class UserResource extends Resource
                     ),
             ])
             ->bulkActions([]);
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('user.view');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('user.create');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()->can('user.update') && $record->name !== 'Super Administrador';
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()->can('user.delete') && $record->name !== 'Super Administrador';
     }
 
     public static function getPages(): array

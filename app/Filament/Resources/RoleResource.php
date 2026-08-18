@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class RoleResource extends Resource
 {
@@ -81,6 +82,26 @@ class RoleResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function canViewAny(): bool
+    {
+        return auth()->user()->can('role.view');
+    }
+
+    public static function canCreate(): bool
+    {
+        return auth()->user()->can('role.create');
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return auth()->user()->can('role.update') && $record->name !== 'Super Administrador';
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return auth()->user()->can('role.delete') && $record->name !== 'Super Administrador';
     }
 
     public static function getPages(): array
