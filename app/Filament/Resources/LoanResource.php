@@ -113,7 +113,7 @@ class LoanResource extends Resource
                             ->afterStateUpdated(function (Set $set): void {
                                 $set('items', [
                                     [
-                                        'material_id' => '',
+                                        'material_id' => null,
                                         'quantity' => 1,
                                     ],
                                 ]);
@@ -154,11 +154,19 @@ class LoanResource extends Resource
                             ->schema([
                                 Forms\Components\Select::make('material_id')
                                     ->label('Material')
-                                    ->options(fn(Get $get): array => self::materialOptions($get))
-                                    ->default('')
+                                    ->options(function (Get $get): array {
+                                        $warehouseId = $get('../../warehouse_id');
+                                        logger()->info('Bodega obtenida desde el repeater', [
+                                            'warehouse_id' => $warehouseId,
+                                        ]);
+                                        return self::materialOptions($warehouseId);
+                                    })
+                                    ->disabled(
+                                        fn(Get $get): bool => blank($get('../../warehouse_id'))
+                                    )
                                     ->searchable()
-                                    ->required()
-                                    ->dehydrated(),
+                                    ->preload()
+                                    ->required(),
 
                                 Forms\Components\TextInput::make('quantity')
                                     ->label('Cantidad')
@@ -449,10 +457,8 @@ class LoanResource extends Resource
             ->bulkActions([]);
     }
 
-    private static function materialOptions(Get $get): array
+    private static function materialOptions(int|string|null $warehouseId): array
     {
-        $warehouseId = $get('../../warehouse_id');
-
         if (blank($warehouseId)) {
             return [];
         }
@@ -462,13 +468,12 @@ class LoanResource extends Resource
             ->where('type', MaterialType::NON_CONSUMABLE->value)
             ->whereHas(
                 'warehouseStocks',
-                fn(Builder $query): Builder =>
-                $query
+                fn(Builder $query): Builder => $query
                     ->where('warehouse_id', $warehouseId)
                     ->where('current_stock', '>', 0)
             )
             ->with([
-                'warehouseStocks' => fn($query) =>
+                'warehouseStocks' => fn(Builder $query): Builder =>
                     $query->where('warehouse_id', $warehouseId),
             ])
             ->orderBy('name')
@@ -481,7 +486,7 @@ class LoanResource extends Resource
                         '%s - %s (Disponible: %.3f)',
                         $material->code,
                         $material->name,
-                        (float) $stock->current_stock
+                        (float) ($stock?->current_stock ?? 0)
                     ),
                 ];
             })
