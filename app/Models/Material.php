@@ -59,4 +59,9 @@ class Material extends Model
     {
         return $this->hasMany(InventoryMovement::class);
     }
+
+    public function inventoryTransfers(): HasMany
+    {
+        return $this->hasMany(InventoryTransfer::class);
+    }
 }

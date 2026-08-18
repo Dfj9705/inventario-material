@@ -28,6 +28,11 @@ class ActiveLoansTable extends BaseWidget
         return $table
             ->query(
                 Loan::query()
+                    ->with([
+                        'person',
+                        'warehouse',
+                        'items.material',
+                    ])
                     ->whereIn('status', [
                         LoanStatus::ACTIVE->value,
                         LoanStatus::PARTIALLY_RETURNED->value,
@@ -53,6 +58,60 @@ class ActiveLoansTable extends BaseWidget
                     ->listWithLineBreaks()
                     ->limitList(3)
                     ->expandableLimitedList(),
+
+                Tables\Columns\TextColumn::make('delivered_summary')
+                    ->label('Entregado')
+                    ->state(
+                        fn(Loan $record): array =>
+                        $record->items
+                            ->map(
+                                fn($item): string =>
+                                number_format(
+                                    (float) $item->quantity,
+                                    3
+                                )
+                            )
+                            ->all()
+                    )
+                    ->listWithLineBreaks(),
+
+                Tables\Columns\TextColumn::make('returned_summary')
+                    ->label('Devuelto')
+                    ->state(
+                        fn(Loan $record): array =>
+                        $record->items
+                            ->map(
+                                fn($item): string =>
+                                number_format(
+                                    (float) $item->returned_quantity,
+                                    3
+                                )
+                            )
+                            ->all()
+                    )
+                    ->listWithLineBreaks()
+                    ->color('success'),
+
+                Tables\Columns\TextColumn::make('pending_summary')
+                    ->label('Pendiente')
+                    ->state(
+                        fn(Loan $record): array =>
+                        $record->items
+                            ->map(
+                                fn($item): string =>
+                                number_format(
+                                    max(
+                                        0,
+                                        (float) $item->quantity
+                                        - (float) $item->returned_quantity
+                                    ),
+                                    3
+                                )
+                            )
+                            ->all()
+                    )
+                    ->listWithLineBreaks()
+                    ->color('warning'),
 
                 Tables\Columns\TextColumn::make('loan_date')
                     ->label('Fecha')

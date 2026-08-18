@@ -30,6 +30,7 @@ class Loan extends Model
             'loan_date' => 'datetime',
             'expected_return_date' => 'date',
             'status' => LoanStatus::class,
+            'overdue_notified_at' => 'datetime',
         ];
     }
 

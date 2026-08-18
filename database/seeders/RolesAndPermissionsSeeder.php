@@ -83,6 +83,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'loan.view',
             'loan.create',
             'loan.return',
+
+            'inventory_transfer.view',
+            'inventory_transfer.create',
         ];
 
         foreach ($permissions as $permission) {
@@ -159,6 +162,9 @@ class RolesAndPermissionsSeeder extends Seeder
 
                 'loan.view',
                 'loan.return',
+
+                'inventory_transfer.view',
+                'inventory_transfer.create',
             ]);
 
         Role::findByName('Operador')
@@ -178,6 +184,7 @@ class RolesAndPermissionsSeeder extends Seeder
                 'inventory_movement.consumption',
                 'loan.view',
                 'loan.return',
+                'inventory_transfer.view',
             ]);
 
         Role::findByName('Consulta')
@@ -190,6 +197,8 @@ class RolesAndPermissionsSeeder extends Seeder
                 'warehouse_stock.view',
                 'inventory_movement.view',
                 'loan.view',
+                'inventory_transfer.view',
+                'inventory_transfer.create',
             ]);
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
