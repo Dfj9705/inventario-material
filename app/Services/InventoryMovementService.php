@@ -14,6 +14,10 @@ use LogicException;
 
 class InventoryMovementService
 {
+    public function __construct(
+        private readonly StockNotificationService $stockNotificationService,
+    ) {
+    }
     public function registerEntry(
         WarehouseStock $stock,
         float|int|string $quantity,
@@ -152,6 +156,8 @@ class InventoryMovementService
             }
 
             $movement->save();
+
+            $this->stockNotificationService->handle($stock);
 
             return $movement;
         }, attempts: 5);

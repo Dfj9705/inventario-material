@@ -29,7 +29,12 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Notifications\Notification;
 use Illuminate\Validation\ValidationException;
-
+use App\Models\LoanItem;
+use Filament\Infolists\Components\ImageEntry;
+use Filament\Infolists\Components\RepeatableEntry;
+use Filament\Infolists\Components\Section;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Infolist;
 class LoanResource extends Resource
 {
     protected static ?string $model = Loan::class;
@@ -302,6 +307,7 @@ class LoanResource extends Resource
                     ),
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\Action::make('registerReturn')
                     ->label('Registrar devolución')
                     ->icon('heroicon-o-arrow-uturn-left')
@@ -533,6 +539,175 @@ class LoanResource extends Resource
         return [
             'index' => Pages\ListLoans::route('/'),
             'create' => Pages\CreateLoan::route('/create'),
+            'view' => Pages\ViewLoan::route('/{record}'),
+
         ];
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return $infolist
+            ->schema([
+                Section::make('Información del préstamo')
+                    ->schema([
+                        TextEntry::make('code')
+                            ->label('Código')
+                            ->copyable(),
+
+                        TextEntry::make('person.name')
+                            ->label('Persona'),
+
+                        TextEntry::make('warehouse.name')
+                            ->label('Bodega'),
+
+                        TextEntry::make('status')
+                            ->label('Estado')
+                            ->badge(),
+
+                        TextEntry::make('loan_date')
+                            ->label('Fecha del préstamo')
+                            ->dateTime('d/m/Y H:i'),
+
+                        TextEntry::make('expected_return_date')
+                            ->label('Devolución prevista')
+                            ->dateTime('d/m/Y H:i')
+                            ->placeholder('Sin fecha prevista'),
+
+                        TextEntry::make('overdue')
+                            ->label('Vencido')
+                            ->state(
+                                fn(Loan $record): string =>
+                                $record->isOverdue() ? 'Sí' : 'No'
+                            )
+                            ->badge()
+                            ->color(
+                                fn(Loan $record): string =>
+                                $record->isOverdue()
+                                ? 'danger'
+                                : 'success'
+                            ),
+
+                        TextEntry::make('creator.name')
+                            ->label('Registrado por'),
+
+                        TextEntry::make('observations')
+                            ->label('Observaciones')
+                            ->placeholder('Sin observaciones')
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(4),
+
+                Section::make('Materiales entregados')
+                    ->schema([
+                        RepeatableEntry::make('items')
+                            ->label('')
+                            ->schema([
+                                TextEntry::make('material.code')
+                                    ->label('Código'),
+
+                                TextEntry::make('material.name')
+                                    ->label('Material'),
+
+                                TextEntry::make('quantity')
+                                    ->label('Entregado')
+                                    ->formatStateUsing(
+                                        fn($state): string =>
+                                        number_format((float) $state, 3)
+                                    ),
+
+                                TextEntry::make('returned_quantity')
+                                    ->label('Devuelto')
+                                    ->formatStateUsing(
+                                        fn($state): string =>
+                                        number_format((float) $state, 3)
+                                    ),
+
+                                TextEntry::make('pending_quantity')
+                                    ->label('Pendiente')
+                                    ->state(
+                                        fn(LoanItem $record): string =>
+                                        number_format(
+                                            max(
+                                                0,
+                                                (float) $record->quantity
+                                                - (float) $record->returned_quantity
+                                            ),
+                                            3
+                                        )
+                                    ),
+                            ])
+                            ->columns(5),
+                    ]),
+
+                Section::make('Firma de recepción')
+                    ->schema([
+                        ImageEntry::make('signature_path')
+                            ->label('Firma')
+                            ->state(
+                                fn(Loan $record): string =>
+                                route('loans.signature', $record)
+                            )
+                            ->height(180)
+                            ->checkFileExistence(false)
+                            ->url(
+                                fn(Loan $record): string =>
+                                route('loans.signature', $record)
+                            )
+                            ->openUrlInNewTab(),
+                    ])
+                    ->visible(
+                        fn(Loan $record): bool =>
+                        filled($record->signature_path)
+                    ),
+
+                Section::make('Historial de devoluciones')
+                    ->schema([
+                        RepeatableEntry::make('loanReturns')
+                            ->label('')
+                            ->schema([
+                                TextEntry::make('return_date')
+                                    ->label('Fecha')
+                                    ->dateTime('d/m/Y H:i'),
+
+                                TextEntry::make('receivedBy.name')
+                                    ->label('Recibido por'),
+
+                                TextEntry::make('observations')
+                                    ->label('Observaciones')
+                                    ->placeholder('Sin observaciones'),
+
+                                RepeatableEntry::make('items')
+                                    ->label('Materiales devueltos')
+                                    ->schema([
+                                        TextEntry::make(
+                                            'loanItem.material.code'
+                                        )
+                                            ->label('Código'),
+
+                                        TextEntry::make(
+                                            'loanItem.material.name'
+                                        )
+                                            ->label('Material'),
+
+                                        TextEntry::make('quantity')
+                                            ->label('Cantidad')
+                                            ->formatStateUsing(
+                                                fn($state): string =>
+                                                number_format(
+                                                    (float) $state,
+                                                    3
+                                                )
+                                            ),
+                                    ])
+                                    ->columns(3)
+                                    ->columnSpanFull(),
+                            ])
+                            ->columns(3),
+                    ])
+                    ->visible(
+                        fn(Loan $record): bool =>
+                        $record->loanReturns()->exists()
+                    ),
+            ]);
     }
 }

@@ -58,6 +58,8 @@ class AdminPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             ->brandLogo(asset('images/logo.png'))
             ->favicon(asset('images/logo.png'))
             ->brandLogoHeight('4rem')
