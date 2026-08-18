@@ -7,7 +7,7 @@ use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Pages;
-use Filament\Pages\Auth\EditProfile;
+use App\Filament\Pages\Auth\EditProfile;
 use Filament\Pages\Auth\Register;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -32,7 +32,7 @@ class AdminPanelProvider extends PanelProvider
             ->passwordReset()
             ->sidebarCollapsibleOnDesktop()
             ->registration(Register::class)
-            ->profile(EditProfile::class)
+            ->profile(EditProfile::class, isSimple: false)
             ->emailVerification()
             ->colors([
                 'primary' => Color::Teal,
