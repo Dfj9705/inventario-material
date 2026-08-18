@@ -20,7 +20,10 @@ class EditProfile extends BaseEditProfile
                     ->disk('public')
                     ->directory('avatars')
                     ->visibility('public')
-                    ->maxSize(2048),
+                    ->maxSize(2048)
+                    ->extraInputAttributes([
+                        'capture' => 'environment',
+                    ]),
 
                 $this->getNameFormComponent(),
                 $this->getEmailFormComponent(),

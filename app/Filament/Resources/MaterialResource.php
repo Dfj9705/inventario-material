@@ -97,16 +97,21 @@ class MaterialResource extends Resource
                 Forms\Components\Section::make('Imagen')
                     ->schema([
                         Forms\Components\FileUpload::make('image_path')
-                            ->label('Imagen del material')
+                            ->label('Fotografía')
                             ->image()
                             ->imageEditor()
+                            ->imageEditorAspectRatios([
+                                null,
+                                '4:3',
+                                '1:1',
+                            ])
                             ->disk('public')
                             ->directory('materials')
                             ->visibility('public')
-                            ->maxSize(2048)
-                            ->imagePreviewHeight('200')
-                            ->downloadable()
-                            ->openable(),
+                            ->maxSize(5120)
+                            ->extraInputAttributes([
+                                'capture' => 'environment',
+                            ]),
                     ]),
             ]);
     }
