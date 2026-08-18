@@ -156,9 +156,6 @@ class LoanResource extends Resource
                                     ->label('Material')
                                     ->options(function (Get $get): array {
                                         $warehouseId = $get('../../warehouse_id');
-                                        logger()->info('Bodega obtenida desde el repeater', [
-                                            'warehouse_id' => $warehouseId,
-                                        ]);
                                         return self::materialOptions($warehouseId);
                                     })
                                     ->disabled(
@@ -465,7 +462,6 @@ class LoanResource extends Resource
 
         return Material::query()
             ->where('is_active', true)
-            ->where('type', MaterialType::NON_CONSUMABLE->value)
             ->whereHas(
                 'warehouseStocks',
                 fn(Builder $query): Builder => $query
