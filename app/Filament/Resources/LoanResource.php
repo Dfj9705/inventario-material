@@ -469,7 +469,7 @@ class LoanResource extends Resource
                     ->where('current_stock', '>', 0)
             )
             ->with([
-                'warehouseStocks' => fn(Builder $query): Builder =>
+                'warehouseStocks' => fn($query) =>
                     $query->where('warehouse_id', $warehouseId),
             ])
             ->orderBy('name')
