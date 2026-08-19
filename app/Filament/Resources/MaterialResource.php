@@ -63,6 +63,17 @@ class MaterialResource extends Resource
                             ->relationship('category', 'name')
                             ->searchable()
                             ->preload()
+                            ->createOptionForm([
+                                Forms\Components\TextInput::make('name')
+                                    ->label('Nombre de la categoría')
+                                    ->required()
+                                    ->maxLength(255),
+
+                                Forms\Components\Textarea::make('description')
+                                    ->label('Descripción')
+                                    ->rows(3),
+                            ])
+                            ->createOptionModalHeading('Nueva categoría')
                             ->required(),
 
                         Forms\Components\Select::make('unit_id')
