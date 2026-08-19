@@ -115,7 +115,7 @@ class InventoryMovementService
                 ->lockForUpdate()
                 ->firstOrFail();
 
-            $this->validateMaterialType($stock, $type);
+            //$this->validateMaterialType($stock, $type);
 
             $balanceBefore = round((float) $stock->current_stock, 3);
 
@@ -196,14 +196,6 @@ class InventoryMovementService
             ]);
         }
 
-        if (
-            $type === MovementType::LOAN
-            && $stock->material->type !== MaterialType::NON_CONSUMABLE
-        ) {
-            throw ValidationException::withMessages([
-                'quantity' => 'Los materiales consumibles no pueden prestarse.',
-            ]);
-        }
     }
 
     private function formatDecimal(float $value): string
