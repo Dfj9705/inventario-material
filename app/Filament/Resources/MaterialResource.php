@@ -109,9 +109,7 @@ class MaterialResource extends Resource
                             ->directory('materials')
                             ->visibility('public')
                             ->maxSize(5120)
-                            ->extraInputAttributes([
-                                'capture' => 'environment',
-                            ]),
+                        ,
                     ]),
             ]);
     }
